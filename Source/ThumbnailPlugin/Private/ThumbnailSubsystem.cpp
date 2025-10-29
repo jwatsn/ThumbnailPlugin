@@ -34,38 +34,39 @@ void UThumbnailSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-UThumbnailQueuedEntry* UThumbnailSubsystem::QueueStaticMeshThumbnail(UStaticMesh* mesh)
+UThumbnailQueuedEntry* UThumbnailSubsystem::QueueMeshThumbnail(UStaticMesh* mesh)
 {
 	if (!mesh)
 	{
 		return nullptr;
 	}
-	UThumbnailQueuedEntry* newEntry = NewObject<UThumbnailQueuedEntry>();
+	UThumbnailQueuedEntry* newEntry = QueueThumbnail();
 	newEntry->StaticMesh = mesh;
-	Queue.Add(newEntry);
-	bIsRunning = true;
 	return newEntry;
 }
-UThumbnailQueuedEntry* UThumbnailSubsystem::QueueSkeletalMeshThumbnail(USkeletalMesh* mesh)
+UThumbnailQueuedEntry* UThumbnailSubsystem::QueueMeshThumbnail(USkeletalMesh* mesh)
 {
 	if (!mesh)
 	{
 		return nullptr;
 	}
-	UThumbnailQueuedEntry* newEntry = NewObject<UThumbnailQueuedEntry>();
+	UThumbnailQueuedEntry* newEntry = QueueThumbnail();
 	newEntry->SkeletalMesh = mesh;
-	Queue.Add(newEntry);
-	bIsRunning = true;
 	return newEntry;
 }
-UThumbnailQueuedEntry* UThumbnailSubsystem::QueueGeometryCollectionThumbnail(UGeometryCollection* collection, UTexture2D* thumbnail)
+UThumbnailQueuedEntry* UThumbnailSubsystem::QueueMeshThumbnail(UGeometryCollection* collection)
 {
 	if (!collection)
 	{
 		return nullptr;
 	}
-	UThumbnailQueuedEntry* newEntry = NewObject<UThumbnailQueuedEntry>();
+	UThumbnailQueuedEntry* newEntry = QueueThumbnail();
 	newEntry->GeometryCollection = collection;
+	return newEntry;
+}
+UThumbnailQueuedEntry* UThumbnailSubsystem::QueueThumbnail()
+{
+	UThumbnailQueuedEntry* newEntry = NewObject<UThumbnailQueuedEntry>();
 	Queue.Add(newEntry);
 	bIsRunning = true;
 	return newEntry;

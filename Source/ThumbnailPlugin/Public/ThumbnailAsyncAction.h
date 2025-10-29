@@ -43,15 +43,7 @@ private:
 		{
 			return nullptr;
 		}
-		UThumbnailQueuedEntry* entry = nullptr;
-		if (inMesh->IsA<UStaticMesh>())
-		{
-			entry = subsystem->QueueStaticMeshThumbnail(reinterpret_cast<UStaticMesh*>(inMesh));
-		}
-		else if (inMesh->IsA<USkeletalMesh>())
-		{
-			entry = subsystem->QueueSkeletalMeshThumbnail(reinterpret_cast<USkeletalMesh*>(inMesh));
-		}
+		UThumbnailQueuedEntry* entry = subsystem->QueueMeshThumbnail(inMesh);
 		if (!entry)
 		{
 			return nullptr;

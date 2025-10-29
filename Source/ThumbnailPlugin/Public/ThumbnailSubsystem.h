@@ -54,11 +54,11 @@ class THUMBNAILPLUGIN_API UThumbnailSubsystem : public UGameInstanceSubsystem
 	FThumbnailScene* PreviewScene = nullptr;
 
 	UPROPERTY()
-	UThumbnailQueuedEntry* CurrentEntry = nullptr;
+	TObjectPtr<UThumbnailQueuedEntry> CurrentEntry = nullptr;
 	UPROPERTY()
-	TArray<UThumbnailQueuedEntry*> Queue;
+	TArray<TObjectPtr<UThumbnailQueuedEntry>> Queue;
 	UPROPERTY()
-	UTextureRenderTarget2D* RenderTarget = nullptr;
+	TObjectPtr<UTextureRenderTarget2D> RenderTarget = nullptr;
 	FVector2D RenderTargetSize = FVector2D(128, 128);
 	bool bIsRunning = false;
 	float SceneTimeoutCount = 0.f;
@@ -71,17 +71,14 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	UFUNCTION(BlueprintCallable)
-	UThumbnailQueuedEntry* QueueStaticMeshThumbnail(UStaticMesh* mesh);
-	UFUNCTION(BlueprintCallable)
-	UThumbnailQueuedEntry* QueueSkeletalMeshThumbnail(USkeletalMesh* mesh);
-	UFUNCTION(BlueprintCallable)
-	UThumbnailQueuedEntry* QueueGeometryCollectionThumbnail(UGeometryCollection* collection, UTexture2D* thumbnail);
+	UThumbnailQueuedEntry* QueueMeshThumbnail(UStaticMesh* mesh);
+	UThumbnailQueuedEntry* QueueMeshThumbnail(USkeletalMesh* mesh);
+	UThumbnailQueuedEntry* QueueMeshThumbnail(UGeometryCollection* collection);
 	bool ThumbnailTick(float DeltaTime);
 
 
 private:
-
+	UThumbnailQueuedEntry* QueueThumbnail();
 	void DoInitState();
 	void DoProcessingState();
 	void DoCompletedState();
