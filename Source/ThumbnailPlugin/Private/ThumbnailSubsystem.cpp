@@ -18,7 +18,7 @@ void UThumbnailSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 
 	TickDelegate = FTickerDelegate::CreateUObject(this, &UThumbnailSubsystem::ThumbnailTick);
-	TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
+	
 
 	RenderTarget = NewObject<UTextureRenderTarget2D>(GetTransientPackage());
 	RenderTarget->RenderTargetFormat = RTF_RGBA16f;
@@ -30,7 +30,7 @@ void UThumbnailSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 }
 void UThumbnailSubsystem::Deinitialize()
 {
-	FTSTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
+	EndThumbnailProcessing();
 	Super::Deinitialize();
 }
 
@@ -68,15 +68,14 @@ UThumbnailQueuedEntry* UThumbnailSubsystem::QueueThumbnail()
 {
 	UThumbnailQueuedEntry* newEntry = NewObject<UThumbnailQueuedEntry>();
 	Queue.Add(newEntry);
-	bIsRunning = true;
+	if (!TickDelegateHandle.IsValid())
+	{
+		StartThumbnailProcessing();
+	}
 	return newEntry;
 }
 bool UThumbnailSubsystem::ThumbnailTick(float DeltaTime)
 {
-	if (!bIsRunning)
-	{
-		return true;
-	}
 
 	if (!PreviewScene)
 	{
@@ -89,14 +88,7 @@ bool UThumbnailSubsystem::ThumbnailTick(float DeltaTime)
 	{
 		if (Queue.IsEmpty())
 		{
-			SceneTimeoutCount += DeltaTime;
-			if (SceneTimeoutCount >= 4.f)
-			{
-				bIsRunning = false;
-				delete PreviewScene;
-				PreviewScene = nullptr;
-				SceneTimeoutCount = 0;
-			}
+			EndThumbnailProcessing();
 			return true;
 		}
 		CurrentEntry = Queue.Pop();
@@ -115,7 +107,6 @@ bool UThumbnailSubsystem::ThumbnailTick(float DeltaTime)
 	}
 
 	PreviewScene->Tick(DeltaTime);
-	SceneTimeoutCount = 0;
 
 	return true;
 }
@@ -177,4 +168,26 @@ void UThumbnailSubsystem::DoCompletedState()
 		CurrentEntry->bComplete = true;
 		CurrentEntry = nullptr;
 	}
+}
+void UThumbnailSubsystem::EndThumbnailProcessing()
+{
+	if (TickDelegateHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(TickDelegateHandle);
+		TickDelegateHandle.Reset();
+	}
+	if (PreviewScene)
+	{
+		delete PreviewScene;
+		PreviewScene = nullptr;
+	}
+
+}
+void UThumbnailSubsystem::StartThumbnailProcessing()
+{
+	if (TickDelegateHandle.IsValid())
+	{
+		return;
+	}
+	TickDelegateHandle = FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
 }

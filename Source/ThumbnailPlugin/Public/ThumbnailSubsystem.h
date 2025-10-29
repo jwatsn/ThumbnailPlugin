@@ -60,8 +60,6 @@ class THUMBNAILPLUGIN_API UThumbnailSubsystem : public UGameInstanceSubsystem
 	UPROPERTY()
 	TObjectPtr<UTextureRenderTarget2D> RenderTarget = nullptr;
 	FVector2D RenderTargetSize = FVector2D(128, 128);
-	bool bIsRunning = false;
-	float SceneTimeoutCount = 0.f;
 
 	FTickerDelegate					TickDelegate;
 
@@ -82,6 +80,9 @@ private:
 	void DoInitState();
 	void DoProcessingState();
 	void DoCompletedState();
+
+	void EndThumbnailProcessing();
+	void StartThumbnailProcessing();
 };
 
 
